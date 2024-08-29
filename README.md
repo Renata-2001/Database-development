@@ -15,4 +15,4 @@
 
 Все все публикации и их параметры - publications
 
-
+![](https://github.com/Renata-2001/Database-development/blob/main/Schema.png)
