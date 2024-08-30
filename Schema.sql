@@ -3,7 +3,7 @@
 BEGIN;
 
 
-CREATE TABLE IF NOT EXISTS "Dance"."Styles"
+CREATE TABLE IF NOT EXISTS Styles
 (
     style_id integer NOT NULL DEFAULT nextval('"Dance"."Styles_style_id_seq"'::regclass),
     name character varying(30) COLLATE pg_catalog."default" NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "Dance"."Styles"
     CONSTRAINT name UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS "Dance"."user"
+CREATE TABLE IF NOT EXISTS user
 (
     user_id integer NOT NULL DEFAULT nextval('"Dance".user_user_id_seq'::regclass),
     login character varying(20) COLLATE pg_catalog."default" NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS "Dance"."user"
     CONSTRAINT user_login_key UNIQUE (login)
 );
 
-CREATE TABLE IF NOT EXISTS "Dance".saved_publication
+CREATE TABLE IF NOT EXISTS saved_publication
 (
     publication_id integer NOT NULL,
     user_id integer NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS "Dance".saved_publication
     CONSTRAINT saved_publication_pkey PRIMARY KEY (publication_id, user_id)
 );
 
-CREATE TABLE IF NOT EXISTS "Dance".publications
+CREATE TABLE IF NOT EXISTS publications
 (
     publication_id integer NOT NULL DEFAULT nextval('"Dance".publications_publication_id_seq'::regclass),
     description text COLLATE pg_catalog."default",
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS "Dance".publications
     CONSTRAINT dance UNIQUE (dance)
 );
 
-CREATE TABLE IF NOT EXISTS "Dance".publication_and_user
+CREATE TABLE IF NOT EXISTS publication_and_user
 (
     user_id integer NOT NULL,
     publication_id integer NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS "Dance".publication_and_user
     CONSTRAINT publication_and_user_pkey PRIMARY KEY (user_id, publication_id)
 );
 
-CREATE TABLE IF NOT EXISTS "Dance"."Comments"
+CREATE TABLE IF NOT EXISTS Comments
 (
     comment_id serial,
     user_id integer NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS "Dance"."Comments"
     PRIMARY KEY (id_comment)
 );
 
-ALTER TABLE IF EXISTS "Dance".saved_publication
+ALTER TABLE IF EXISTS saved_publication
     ADD FOREIGN KEY (publication_id)
     REFERENCES "Dance".publications (publication_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -67,7 +67,7 @@ ALTER TABLE IF EXISTS "Dance".saved_publication
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS "Dance".saved_publication
+ALTER TABLE IF EXISTS saved_publication
     ADD FOREIGN KEY (user_id)
     REFERENCES "Dance"."user" (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -75,7 +75,7 @@ ALTER TABLE IF EXISTS "Dance".saved_publication
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS "Dance".publications
+ALTER TABLE IF EXISTS publications
     ADD FOREIGN KEY (style_id)
     REFERENCES "Dance"."Styles" (style_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -83,7 +83,7 @@ ALTER TABLE IF EXISTS "Dance".publications
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS "Dance".publication_and_user
+ALTER TABLE IF EXISTS publication_and_user
     ADD FOREIGN KEY (user_id)
     REFERENCES "Dance"."user" (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -91,7 +91,7 @@ ALTER TABLE IF EXISTS "Dance".publication_and_user
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS "Dance".publication_and_user
+ALTER TABLE IF EXISTS publication_and_user
     ADD FOREIGN KEY (publication_id)
     REFERENCES "Dance".publications (publication_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -99,7 +99,7 @@ ALTER TABLE IF EXISTS "Dance".publication_and_user
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS "Dance"."Comments"
+ALTER TABLE IF EXISTS Comments
     ADD FOREIGN KEY (user_id)
     REFERENCES "Dance"."user" (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -107,7 +107,7 @@ ALTER TABLE IF EXISTS "Dance"."Comments"
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS "Dance"."Comments"
+ALTER TABLE IF EXISTS Comments
     ADD FOREIGN KEY (publication_id)
     REFERENCES "Dance".publications (publication_id) MATCH SIMPLE
     ON UPDATE NO ACTION
