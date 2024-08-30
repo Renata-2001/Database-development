@@ -2,6 +2,12 @@
 -- Please log an issue at https://github.com/pgadmin-org/pgadmin4/issues/new/choose if you find any bugs, including reproduction steps.
 BEGIN;
 
+DROP TABLE IF EXISTS Styles;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS saved_publications;
+DROP TABLE IF EXISTS publications;
+DROP TABLE IF EXISTS publication_and_user;
+DROP TABLE IF EXISTS Comments;
 
 CREATE TABLE IF NOT EXISTS Styles
 (
@@ -11,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Styles
     CONSTRAINT name UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS user
+CREATE TABLE IF NOT EXISTS Users
 (
     user_id integer NOT NULL DEFAULT nextval('"Dance".user_user_id_seq'::regclass),
     login character varying(20) COLLATE pg_catalog."default" NOT NULL,
@@ -24,7 +30,7 @@ CREATE TABLE IF NOT EXISTS user
     CONSTRAINT user_login_key UNIQUE (login)
 );
 
-CREATE TABLE IF NOT EXISTS saved_publication
+CREATE TABLE IF NOT EXISTS saved_publications
 (
     publication_id integer NOT NULL,
     user_id integer NOT NULL,
@@ -61,7 +67,7 @@ CREATE TABLE IF NOT EXISTS Comments
 
 ALTER TABLE IF EXISTS saved_publication
     ADD FOREIGN KEY (publication_id)
-    REFERENCES "Dance".publications (publication_id) MATCH SIMPLE
+    REFERENCES publications (publication_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -69,7 +75,7 @@ ALTER TABLE IF EXISTS saved_publication
 
 ALTER TABLE IF EXISTS saved_publication
     ADD FOREIGN KEY (user_id)
-    REFERENCES "Dance"."user" (user_id) MATCH SIMPLE
+    REFERENCES Users (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -77,7 +83,7 @@ ALTER TABLE IF EXISTS saved_publication
 
 ALTER TABLE IF EXISTS publications
     ADD FOREIGN KEY (style_id)
-    REFERENCES "Dance"."Styles" (style_id) MATCH SIMPLE
+    REFERENCES Styles (style_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -85,7 +91,7 @@ ALTER TABLE IF EXISTS publications
 
 ALTER TABLE IF EXISTS publication_and_user
     ADD FOREIGN KEY (user_id)
-    REFERENCES "Dance"."user" (user_id) MATCH SIMPLE
+    REFERENCES Users (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -93,7 +99,7 @@ ALTER TABLE IF EXISTS publication_and_user
 
 ALTER TABLE IF EXISTS publication_and_user
     ADD FOREIGN KEY (publication_id)
-    REFERENCES "Dance".publications (publication_id) MATCH SIMPLE
+    REFERENCES publications (publication_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -101,7 +107,7 @@ ALTER TABLE IF EXISTS publication_and_user
 
 ALTER TABLE IF EXISTS Comments
     ADD FOREIGN KEY (user_id)
-    REFERENCES "Dance"."user" (user_id) MATCH SIMPLE
+    REFERENCES Users (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -109,7 +115,7 @@ ALTER TABLE IF EXISTS Comments
 
 ALTER TABLE IF EXISTS Comments
     ADD FOREIGN KEY (publication_id)
-    REFERENCES "Dance".publications (publication_id) MATCH SIMPLE
+    REFERENCES publications (publication_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
