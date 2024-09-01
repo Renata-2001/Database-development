@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS comment_public
 (
     user_id integer,
     public_id integer,
-    comment text,
+    comment text NOT NULL,
     time_comment timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, public_id)
 );
