@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS publications;
 DROP TABLE IF EXISTS publication_and_user;
 DROP TABLE IF EXISTS Comments;
 
-CREATE TABLE IF NOT EXISTS Styles
+CREATE TABLE Styles
 (
     style_id integer NOT NULL DEFAULT nextval('"Dance"."Styles_style_id_seq"'::regclass),
     name character varying(30) COLLATE pg_catalog."default" NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Styles
     CONSTRAINT name UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS Users
+CREATE TABLE Users
 (
     user_id integer NOT NULL DEFAULT nextval('"Dance".user_user_id_seq'::regclass),
     login character varying(20) COLLATE pg_catalog."default" NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS Users
     CONSTRAINT user_login_key UNIQUE (login)
 );
 
-CREATE TABLE IF NOT EXISTS saved_publications
+CREATE TABLE saved_publications
 (
     publication_id integer NOT NULL,
     user_id integer NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS saved_publications
     CONSTRAINT saved_publication_pkey PRIMARY KEY (publication_id, user_id)
 );
 
-CREATE TABLE IF NOT EXISTS publications
+CREATE TABLE publications
 (
     publication_id integer NOT NULL DEFAULT nextval('"Dance".publications_publication_id_seq'::regclass),
     description text COLLATE pg_catalog."default",
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS publications
     CONSTRAINT dance UNIQUE (dance)
 );
 
-CREATE TABLE IF NOT EXISTS publication_and_user
+CREATE TABLE publication_and_user
 (
     user_id integer NOT NULL,
     publication_id integer NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS publication_and_user
     CONSTRAINT publication_and_user_pkey PRIMARY KEY (user_id, publication_id)
 );
 
-CREATE TABLE IF NOT EXISTS Comments
+CREATE TABLE Comments
 (
     comment_id serial,
     user_id integer NOT NULL,
