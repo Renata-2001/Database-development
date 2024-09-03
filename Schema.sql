@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users
 (
     user_id serial,
     login character varying(20) NOT NULL,
-    passwd character varying(100) NOT NULL,
+    passwd character varying(255) NOT NULL,
     email character varying(100) NOT NULL,
     time_user timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id),
@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS publications
     description text,
     style_id integer NOT NULL,
     time_public timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    video_path text,
+    user_id integer NOT NULL,
     PRIMARY KEY (public_id)
 );
 
@@ -31,11 +33,11 @@ CREATE TABLE IF NOT EXISTS styles
     PRIMARY KEY (style_id)
 );
 
-CREATE TABLE IF NOT EXISTS saved_public
+CREATE TABLE IF NOT EXISTS likes_public
 (
     user_id integer,
     public_id integer,
-    time_saved timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    time_likes timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, public_id)
 );
 
@@ -48,6 +50,13 @@ CREATE TABLE IF NOT EXISTS comment_public
     PRIMARY KEY (user_id, public_id)
 );
 
+CREATE TABLE IF NOT EXISTS followers
+(
+    user_id integer,
+    follower_id integer,
+    PRIMARY KEY (user_id, follower_id)
+);
+
 ALTER TABLE IF EXISTS publications
     ADD CONSTRAINT style_id FOREIGN KEY (style_id)
     REFERENCES styles (style_id) MATCH SIMPLE
@@ -56,7 +65,15 @@ ALTER TABLE IF EXISTS publications
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS saved_public
+ALTER TABLE IF EXISTS publications
+    ADD CONSTRAINT user_id FOREIGN KEY (user_id)
+    REFERENCES users (user_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS likes_public
     ADD CONSTRAINT user_id FOREIGN KEY (user_id)
     REFERENCES users (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -64,11 +81,11 @@ ALTER TABLE IF EXISTS saved_public
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS saved_public
+ALTER TABLE IF EXISTS likes_public
     ADD CONSTRAINT public_id FOREIGN KEY (public_id)
     REFERENCES publications (public_id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     NOT VALID;
 
 
@@ -83,6 +100,22 @@ ALTER TABLE IF EXISTS comment_public
 ALTER TABLE IF EXISTS comment_public
     ADD CONSTRAINT public_id FOREIGN KEY (public_id)
     REFERENCES publications (public_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS followers
+    ADD CONSTRAINT user_id FOREIGN KEY (user_id)
+    REFERENCES users (user_id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS followers
+    ADD CONSTRAINT follower_id FOREIGN KEY (follower_id)
+    REFERENCES users (user_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
