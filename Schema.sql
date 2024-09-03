@@ -19,11 +19,12 @@ CREATE TABLE IF NOT EXISTS publications
 (
     public_id serial,
     description text,
-    style_id integer NOT NULL,
+    style_id integer,
     time_public timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    video_path text,
+    video_path text NOT NULL,
     user_id integer NOT NULL,
-    PRIMARY KEY (public_id)
+    PRIMARY KEY (public_id),
+    CONSTRAINT video_path UNIQUE (video_path)
 );
 
 CREATE TABLE IF NOT EXISTS styles
