@@ -19,4 +19,3 @@
 
 ![](https://github.com/Renata-2001/Database-development/blob/main/Schema.png)
 
-Для работы с БД используются функции из DanceDB.py
