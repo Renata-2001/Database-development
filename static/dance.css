@@ -4,9 +4,20 @@
     background-image: url('main.jpg');
 }
    
-#main > p {
-    margin-right: 20px;
-    margin-left: auto;
+#main > h1 {
     text-align: center;
-    color:aliceblue
+    color:aliceblue;
+    font-style: oblique;
+    font-weight: bold;
+    font-size: x-large
+}
+
+#phrase {
+    text-align: left;
+    font-style: oblique;
+    color: brown;
+    position: absolute;
+    padding-right: 500px;
+    padding-bottom: 20px;
+    padding-left: 15px
 }
