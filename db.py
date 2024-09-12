@@ -120,3 +120,44 @@ class DanceDB:
 			self.__db.commit()
 		except psycopg2.Error as e:
 			print(e.pgerror)
+
+#------------SELECT_RECORDS_FROM_TABLE-------------
+	def get_user_by_login(self, login):
+		self.__cursor.execute('SELECT * FROM users WHERE login = %s', (login,))
+		user = self.__cursor.fetchone()
+		return user
+
+	def is_free_login(self, login):
+		try:
+			self.__cursor.execute('SELECT count(*) as cnt FROM users WHERE login = %s', (login,))
+			amount = self.__cursor.fetchone()
+			print(amount)
+			if amount[0] == 0:
+				return True
+			else:
+				return False
+		except psycopg2.Error as e:
+			print(e.pgerror)
+			return False
+		
+
+	def get_user(self, user_id):
+		try:
+			self.__cursor.execute('SELECT * FROM users WHERE id = %s LIMIT 1', (user_id,))
+			user = self.__cursor.fetchone()
+			if not user:
+				return False
+			return user
+		except psycopg2.Error as e:
+			print(e.pgerror)
+			return False
+	
+
+	def get_users_logins(self):
+		try:
+			self.__cursor.execute('SELECT login FROM users')
+			logins = [ data['login'] for data in self.__cursor.fetchall()]
+			return logins
+		except psycopg2.Error as e:
+			print(e.pgerror)
+			return False

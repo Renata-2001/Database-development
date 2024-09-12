@@ -11,20 +11,73 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from db import DanceDB
 from login import UserLogin
 
-
 app = Flask(__name__)
 
+login_manager = LoginManager(app)
 
 @app.route('/')
 def index():
-   return render_template('main.html')
-  
+	return render_template('main.html',
+			loggedin=current_user,
+			logins=dancedb.get_users_logins()
+	)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	if request.method == 'POST':
+		user = dancedb.get_user_by_login(request.form['login'])
+		if user and check_password_hash(user['passwd'], request.form['passwd']):
+			userLogin = UserLogin().create(user)
+			login_user(userLogin)
+			return redirect(url_for('index'))
+	return render_template('login.html',
+			loggedin=current_user
+	)
+
+@app.route('/logout')
+@login_required
+def logout():
+	logout_user()
+	return redirect(url_for('login'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+	if request.method == 'POST':
+		if len(request.form['login']) >= 0 and len(request.form['passwd1']) >= 0 and (request.form['passwd1'] == request.form['passwd2']):
+			if dancedb.is_free_login(request.form['login']):	
+				print('reg new user\n')				
+				hash = generate_password_hash(request.form['passwd1'])
+				dancedb.add_user(request.form['login'], hash, request.form['email'])
+				return redirect(url_for('login'))
+	return render_template('register.html',
+			loggedin=current_user
+	)
+
+@login_manager.user_loader
+def load_user(user_id):
+	print('load user')
+	print(user_id)
+	return UserLogin().fromDB(user_id, dancedb)
+
+
 dancedb = None
 @app.before_request
 def before_request():
- global dancedb
- dance_db = psycopg2.connect(dbname="dancedb", user="renatik", password = "Bizezo_00")
- dance_db = DanceDB(dance_db)
+	global dancedb
+	db = get_db()
+	dancedb = DanceDB(db)
+
+@app.teardown_appcontext
+def close_db(error=None):
+	if hasattr(g, 'db'):
+		g.db.close()
+
+def get_db():
+	if not hasattr(g, 'db'):
+		g.db = psycopg2.connect(dbname= 'dancedb', user='renatik', password = 'Bizezo_00')
+	return g.db
+
 
 if __name__ == '__main__':
-   app.run()
+   app.secret_key = os.urandom(24)
+   app.run(debug=True, host='0.0.0.0', port='8000')
