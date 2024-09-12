@@ -34,6 +34,14 @@ def login():
 			loggedin=current_user
 	)
 
+@app.route('/profile')
+@login_required
+def profile():
+	return render_template('profile.html',
+			user_id=current_user.get_id() if current_user else None,
+			loggedin=current_user
+	)
+
 @app.route('/logout')
 @login_required
 def logout():
