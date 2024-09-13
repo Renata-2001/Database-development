@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Upload
+{% endblock %}
+
+{% block content %} 
+<div id="upload">
+	<form method="POST" action="/upload" enctype="multipart/form-data">
+        <p><h4>Описание:</h4><input id="description" type="text" name="description" value=""></p>
+		<p><h4>Стиль:</h4><input id="style" type="text" name="style" value=""></p>
+        <p><h4>Видео</h4>(можно выбрать несколько):<input id="video" type="file" name="video" value="" multiple/></p>
+        <p><input type="submit", value="Отправить"/></p>
+    </form>
+</div>
+{% endblock %}

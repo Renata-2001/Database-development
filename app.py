@@ -19,7 +19,7 @@ login_manager = LoginManager(app)
 def index():
 	return render_template('main.html',
 			loggedin=current_user,
-			logins=dancedb.get_users_logins()
+			values=dancedb.get_all_styles()
 	)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -37,9 +37,12 @@ def login():
 @app.route('/profile')
 @login_required
 def profile():
+	user_id = int(current_user.get_id())
+	videos = dancedb.get_video_by_user_id(user_id)
 	return render_template('profile.html',
-			user_id=current_user.get_id() if current_user else None,
-			loggedin=current_user
+		user_id=current_user.get_id() if current_user else None,
+		loggedin=current_user,
+		videos=videos
 	)
 
 @app.route('/logout')
@@ -61,12 +64,35 @@ def register():
 			loggedin=current_user
 	)
 
+
 @login_manager.user_loader
 def load_user(user_id):
 	print('load user')
 	print(user_id)
 	return UserLogin().fromDB(user_id, dancedb)
 
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+	if request.method == 'POST':	
+		dancedb.add_styles(request.form['style'])
+		style_id = dancedb.get_style_id(request.form['style'])	
+		user_id = int(current_user.get_id())
+		for f in request.files.getlist('video'):
+			if f.filename == '':
+				continue
+			name = get_free_name()
+			_, ext = os.path.splitext(f.filename)
+			if ext in ['.avi', '.mkv', '.mp4', '.ogg']:
+				f.save(os.path.join('video', name + ext))
+				dancedb.add_public(user_id, name + ext, request.form['description'] , style_id)
+			else:
+				flash('Неправильный формат видео')
+				print('Wrong video format')
+				return redirect(url_for('profile'))
+		return redirect(url_for('profile'))
+	return render_template('upload.html',
+			loggedin=current_user)
 
 dancedb = None
 @app.before_request
@@ -84,6 +110,14 @@ def get_db():
 	if not hasattr(g, 'db'):
 		g.db = psycopg2.connect(dbname= 'dancedb', user='renatik', password = 'Bizezo_00')
 	return g.db
+
+def get_free_name():
+	name = str(uuid.uuid4())
+	pathname = os.path.join('video', name)
+	while os.path.exists(pathname):
+		name = str(uuid.uuid4())
+		pathname = os.path.join('video', name)
+	return name
 
 
 if __name__ == '__main__':
