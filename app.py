@@ -34,6 +34,7 @@ def login():
 			loggedin=current_user
 	)
 
+
 @app.route('/profile')
 @login_required
 def profile():
@@ -42,6 +43,16 @@ def profile():
 	return render_template('profile.html',
 		user_id=current_user.get_id() if current_user else None,
 		loggedin=current_user,
+		videos=videos
+	)
+
+@app.route('/<login>')
+@login_required
+def profile_id(login):
+	user_id = dancedb.get_user_by_login(login)['user_id']
+	videos = dancedb.get_video_by_user_id(user_id)
+	return render_template('profile_id.html',
+		user_id = user_id,
 		videos=videos
 	)
 
@@ -84,7 +95,7 @@ def upload():
 			name = get_free_name()
 			_, ext = os.path.splitext(f.filename)
 			if ext in ['.avi', '.mkv', '.mp4', '.ogg']:
-				f.save(os.path.join('video', name + ext))
+				f.save(os.path.join('static/uploads', name + ext))
 				dancedb.add_public(user_id, name + ext, request.form['description'] , style_id)
 			else:
 				flash('Неправильный формат видео')
