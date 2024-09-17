@@ -52,7 +52,7 @@ class DanceDB:
 
 	def add_follower(self, user_id, follower_id):   #FOLLOWERS
 		try:
-			self.__cursor.execute('INSERT INTO users (user_id, follower_id) VALUES (%s, %s);', (user_id, follower_id))
+			self.__cursor.execute('INSERT INTO followers (user_id, follower_id) VALUES (%s, %s);', (user_id, follower_id))
 			self.__db.commit()
 		except psycopg2.Error as e:
 			print(e.pgerror)
@@ -121,11 +121,20 @@ class DanceDB:
 		except psycopg2.Error as e:
 			print(e.pgerror)
 
+	def delete_follower(self, user_id, follower_id):
+		try:
+			self.__cursor.execute('DELETE FROM followers WHERE follower_id = %s AND user_id = %s;',(follower_id, user_id))
+			self.__db.commit()
+		except psycopg2.Error as e:
+			print(e.pgerror)
+
+
 #------------SELECT_RECORDS_FROM_TABLE-------------
 	def get_user_by_login(self, login):
-		self.__cursor.execute('SELECT * FROM users WHERE login = %s', (login,))
+		self.__cursor.execute('SELECT * FROM users WHERE login = %s LIMIT 1', (login,))
 		user = self.__cursor.fetchone()
 		return user
+		
 
 	def is_free_login(self, login):
 		try:
@@ -143,7 +152,7 @@ class DanceDB:
 
 	def get_user(self, user_id):
 		try:
-			self.__cursor.execute('SELECT * FROM users WHERE id = %s LIMIT 1', (user_id,))
+			self.__cursor.execute('SELECT * FROM users WHERE user_id = %s LIMIT 1', (user_id,))
 			user = self.__cursor.fetchone()
 			if not user:
 				return False
@@ -151,13 +160,47 @@ class DanceDB:
 		except psycopg2.Error as e:
 			print(e.pgerror)
 			return False
-	
+		
+	def get_style_id(self, style):
+		try:
+			self.__cursor.execute('SELECT * FROM styles WHERE style = %s LIMIT 1', (style,))
+			user = self.__cursor.fetchone()
+		except psycopg2.Error as e:
+			print(e.pgerror)
+			return False
 
 	def get_users_logins(self):
 		try:
 			self.__cursor.execute('SELECT login FROM users')
 			logins = [ data['login'] for data in self.__cursor.fetchall()]
 			return logins
+		except psycopg2.Error as e:
+			print(e.pgerror)
+			return False
+
+	def get_all_publics(self):
+		try:
+			self.__cursor.execute('SELECT video_path FROM publications')
+			publics = self.__cursor.fetchone()
+			return publics
+		except psycopg2.Error as e:
+			print(e.pgerror)
+			return False
+		
+	def get_video_by_user_id(self, user_id):
+		try:
+			self.__cursor.execute('SELECT video_path FROM publications WHERE user_id = %s', (user_id,))
+			publics = [ data['video_path'] for data in self.__cursor.fetchall()]
+			return publics
+		except psycopg2.Error as e:
+			print(e.pgerror)
+			return False
+		
+	def get_all_styles(self):
+		try:
+			self.__cursor.execute('SELECT * FROM styles')
+			styles = self.__cursor.fetchall()
+			return styles
 		except psycopg2.Error as e:
 			print(e.pgerror)
 			return False

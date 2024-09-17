@@ -15,10 +15,10 @@ Profile
 <div id="media">
 	<div class="media">
 		<hr>
-		{% for filename in videos %}
+		{% for video in videos %}
 		<div style="border:1px solid black;">
 			<video width=100% controls>
-				<source src="{{ url_for('static', filename='uploads/' + filename)}}" type = "video/mp4">
+				<source src="video['path']" type="video/{{video['ext']}}">
 			</video>
 		</div>
 		{% endfor %}

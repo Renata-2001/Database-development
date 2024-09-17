@@ -4,7 +4,7 @@ import uuid
 
 import psycopg2 
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-from flask import Flask, redirect, url_for, render_template, request, session, g, current_app, flash
+from flask import Flask, redirect, url_for, render_template, request, session, g, current_app, flash, Config
 from flask.cli import with_appcontext
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,6 +12,9 @@ from db import DanceDB
 from login import UserLogin
 
 app = Flask(__name__)
+
+cfg = Config(os.path.dirname(__file__))
+cfg.from_envvar('CONFIG')
 
 login_manager = LoginManager(app)
 
@@ -39,22 +42,35 @@ def login():
 @login_required
 def profile():
 	user_id = int(current_user.get_id())
-	videos = dancedb.get_video_by_user_id(user_id)
+	filename = dancedb.get_video_by_user_id(user_id)
+	media_path = cfg['MEDIA_PATH']
+	videos = []
+	for v in filename:
+		_, ext = os.path.splitext(v)
+		print(ext)
+		videos.append({'path': os.path.join(media_path, v), 'ext': ext[1:]})
 	return render_template('profile.html',
 		user_id=current_user.get_id() if current_user else None,
 		loggedin=current_user,
 		videos=videos
 	)
+#
+	
 
-@app.route('/<login>')
-@login_required
-def profile_id(login):
-	user_id = dancedb.get_user_by_login(login)['user_id']
-	videos = dancedb.get_video_by_user_id(user_id)
-	return render_template('profile_id.html',
-		user_id = user_id,
-		videos=videos
-	)
+# @app.route('/follow/<login>', methods=['POST'])
+# @login_required
+# def follow(login):
+# 	user_id = dancedb.get_user_by_login(login)[0]
+# 	print(user_id)
+# 	link='/follow/'+str(login)
+# 	print(link)
+# 	if user_id == current_user.get_id():
+# 		flash('You cannot follow yourself!')
+# 		return redirect(url_for('profile_id', login=login, link=link))
+# 	dancedb.add_follower(current_user[id], user_id)
+# 	flash(f'You are following {login}!')
+# 	return redirect(url_for('profile_id', login=login, link = link))
+    
 
 @app.route('/logout')
 @login_required
@@ -86,24 +102,35 @@ def load_user(user_id):
 @login_required
 def upload():
 	if request.method == 'POST':	
-		dancedb.add_styles(request.form['style'])
-		style_id = dancedb.get_style_id(request.form['style'])	
 		user_id = int(current_user.get_id())
+		print(dancedb.get_all_styles())
 		for f in request.files.getlist('video'):
 			if f.filename == '':
 				continue
 			name = get_free_name()
 			_, ext = os.path.splitext(f.filename)
 			if ext in ['.avi', '.mkv', '.mp4', '.ogg']:
-				f.save(os.path.join('static/uploads', name + ext))
-				dancedb.add_public(user_id, name + ext, request.form['description'] , style_id)
+				f.save(os.path.join(cfg['MEDIA_PATH'], name + ext))
+				dancedb.add_public(user_id, name + ext, request.form['description'], request.form['style'])
 			else:
 				flash('Неправильный формат видео')
 				print('Wrong video format')
 				return redirect(url_for('profile'))
-		return redirect(url_for('profile'))
 	return render_template('upload.html',
-			loggedin=current_user)
+			loggedin=current_user,
+			styles=dancedb.get_all_styles()
+			)
+
+@app.route('/add_style', methods=['GET', 'POST'])
+@login_required
+def add_style():
+	if request.method == 'POST':	
+		dancedb.add_styles(request.form['style'])	
+		return redirect(url_for('upload'))
+	return render_template('upload.html',
+			loggedin=current_user,
+			styles=dancedb.get_all_styles()
+			)
 
 dancedb = None
 @app.before_request
@@ -119,18 +146,18 @@ def close_db(error=None):
 
 def get_db():
 	if not hasattr(g, 'db'):
-		g.db = psycopg2.connect(dbname= 'dancedb', user='renatik', password = 'Bizezo_00')
+		g.db = psycopg2.connect(dbname=cfg['DATABASE'], user=cfg['USERNAME'], password = cfg['PASSWORD'])
 	return g.db
 
 def get_free_name():
 	name = str(uuid.uuid4())
-	pathname = os.path.join('video', name)
+	pathname = os.path.join(cfg['MEDIA_PATH'] , name)
 	while os.path.exists(pathname):
 		name = str(uuid.uuid4())
-		pathname = os.path.join('video', name)
+		pathname = os.path.join(cfg['MEDIA_PATH'] , name)
 	return name
 
 
 if __name__ == '__main__':
-   app.secret_key = os.urandom(24)
+   app.secret_key = cfg['SECRET_KEY']
    app.run(debug=True, host='0.0.0.0', port='8000')
