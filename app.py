@@ -42,6 +42,7 @@ def login():
 @login_required
 def profile():
 	user_id = int(current_user.get_id())
+	login = dancedb.get_user(user_id)['login']
 	filename = dancedb.get_video_by_user_id(user_id)
 	media_path = cfg['MEDIA_PATH']
 	videos = []
@@ -52,25 +53,69 @@ def profile():
 	return render_template('profile.html',
 		user_id=current_user.get_id() if current_user else None,
 		loggedin=current_user,
-		videos=videos
+		videos=videos,
+		login=login
 	)
-#
-	
 
-# @app.route('/follow/<login>', methods=['POST'])
-# @login_required
-# def follow(login):
-# 	user_id = dancedb.get_user_by_login(login)[0]
-# 	print(user_id)
-# 	link='/follow/'+str(login)
-# 	print(link)
-# 	if user_id == current_user.get_id():
-# 		flash('You cannot follow yourself!')
-# 		return redirect(url_for('profile_id', login=login, link=link))
-# 	dancedb.add_follower(current_user[id], user_id)
-# 	flash(f'You are following {login}!')
-# 	return redirect(url_for('profile_id', login=login, link = link))
-    
+@app.route('/profile_id/<login>', methods=['GET'])
+@login_required
+def profile_id(login):
+	user_id = dancedb.get_user_by_login(login)['user_id']
+	if dancedb.check_follow(current_user.get_id(), user_id):
+		what = "Отписаться"
+	else:
+		what = "Подписаться"
+	filename = dancedb.get_video_by_user_id(user_id)
+	media_path = cfg['MEDIA_PATH']
+	videos = []
+	for v in filename:
+		_, ext = os.path.splitext(v)
+		videos.append({'path': os.path.join(media_path, v), 'ext': ext[1:]})
+	return render_template('profile_id.html',
+		loggedin=current_user,
+		login = login,
+		videos = videos,
+		what = what
+	)
+
+@app.route('/follow/<login>', methods=['GET'])
+@login_required
+def follow(login):
+	user_id = dancedb.get_user_by_login(login)['user_id']
+	if user_id == current_user.get_id():
+		flash('You cannot follow yourself!')
+		return redirect(url_for('profile_id'))
+	if dancedb.check_follow(current_user.get_id(), user_id):
+		dancedb.delete_follower(current_user.get_id(), user_id)
+		flash(f'You are unfollowing {login}!')
+		return redirect(url_for('followers'))
+	else:
+		dancedb.add_follower(current_user.get_id(), user_id)
+		flash(f'You are following {login}!')
+		return redirect(url_for('subscriptions'))
+
+
+@app.route('/profile/followers/<login>', methods=['GET'])
+@login_required
+def followers(login):
+	user_id = dancedb.get_user_by_login(login)['user_id']
+	users = dancedb.get_follower(user_id)
+	return render_template('users.html',
+		loggedin=current_user,
+		users=users,
+		who = 'Подписчики'
+	)
+
+@app.route('/profile/subscriptions/<login>', methods=['GET'])
+@login_required
+def subscriptions(login):
+	user_id = dancedb.get_user_by_login(login)['user_id']
+	users = dancedb.get_subscriptions(user_id)
+	return render_template('users.html',
+		loggedin=current_user,
+		users=users,
+		who = 'Подписки'
+	)
 
 @app.route('/logout')
 @login_required
@@ -83,7 +128,7 @@ def register():
 	if request.method == 'POST':
 		if len(request.form['login']) >= 0 and len(request.form['passwd1']) >= 0 and (request.form['passwd1'] == request.form['passwd2']):
 			if dancedb.is_free_login(request.form['login']):	
-				print('reg new user\n')				
+				print('printreg new user\n')				
 				hash = generate_password_hash(request.form['passwd1'])
 				dancedb.add_user(request.form['login'], hash, request.form['email'])
 				return redirect(url_for('login'))
@@ -103,7 +148,6 @@ def load_user(user_id):
 def upload():
 	if request.method == 'POST':	
 		user_id = int(current_user.get_id())
-		print(dancedb.get_all_styles())
 		for f in request.files.getlist('video'):
 			if f.filename == '':
 				continue

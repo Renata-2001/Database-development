@@ -6,26 +6,26 @@ Profile
 
 {% block content %}
 <ul>
-    <li><a href="/profile/subscriptions">Подписки</a></li>
-    <li><a href="/profile/followers">Подписчики</a></li>
-   <!-- <li><a href={link}>Подписаться</a></li> -->
+    <li><a href="{{ url_for('subscriptions', login=login) }}">Подписки</a></li>
+    <li><a href="{{ url_for('followers', login=login) }}">Подписчики</a></li>
+    <li><a href="{{ url_for('follow', login=login) }}">{{what}}</a></li>
 </ul>
 
-<div id="media">
+<div id="media"></div>
 	<div class="media">
 		<hr>
-		{% for filename in videos %}
+		{% for video in videos %}
 		<div style="border:1px solid black;">
 			<video width=100% controls>
-				<source src="{{ url_for('static', filename='uploads/' + filename)}}" type = "video/mp4">
+				<source src="video['path']" type="video/{{video['ext']}}">
 			</video>
 		</div>
 		{% endfor %}
 		<hr>
 	</div>
 </div>
-
+<!-- 
 
 <p><a href="{{ url_for('logout') }}">Log Out</a></p>
 <p>user info: {{user_id}}</p>
-{% endblock %}
+{% endblock %} -->

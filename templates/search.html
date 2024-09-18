@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Upload
+{% endblock %}
+
+{% block content %} 
+<div id="search">
+    <form method="POST" action="/profile_id">
+        <p><h4>Имя пользователя:</h4><input id="login" type="text" name="login" value=""></p>
+        <p><input type="submit", value="Искать"/></p>
+    </form>
+</div>
+{% endblock %}
