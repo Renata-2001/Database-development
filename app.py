@@ -105,6 +105,22 @@ def like(public_id):
 	else:
 		dancedb.add_like(current_user.get_id(), public_id)
 		return redirect(url_for('public', public_id=public_id))
+	
+@app.route('/profile/likes')
+@login_required
+def likes():
+	user_id = current_user.get_id()
+	publics= dancedb.get_likes(user_id)
+	media_path = cfg['MEDIA_PATH']
+	videos = []
+	for v in publics:
+		_, ext = os.path.splitext(v['video_path'])
+		videos.append({'path': os.path.join(media_path, v['video_path']), 'ext': ext[1:], 'public_id': v['public_id']})
+	return render_template('publics.html',
+		loggedin=current_user,
+		videos=videos,
+		what = 'Любимое'
+	)
 
 @app.route('/follow/<login>', methods=['GET'])
 @login_required
@@ -116,11 +132,11 @@ def follow(login):
 	if dancedb.check_follow(current_user.get_id(), user_id):
 		dancedb.delete_follower(current_user.get_id(), user_id)
 		flash(f'You are unfollowing {login}!')
-		return redirect(url_for('followers'))
+		return redirect(url_for('followers', login=dancedb.get_user(current_user.get_id())['login']))
 	else:
 		dancedb.add_follower(current_user.get_id(), user_id)
 		flash(f'You are following {login}!')
-		return redirect(url_for('subscriptions'))
+		return redirect(url_for('subscriptions', login=dancedb.get_user(current_user.get_id())['login']))
 
 
 @app.route('/profile/followers/<login>', methods=['GET'])

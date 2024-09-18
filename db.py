@@ -151,9 +151,9 @@ class DanceDB:
 		return follower
 	
 	def get_likes(self, user_id):
-		self.__cursor.execute('SELECT publication.public_id FROM publications JOIN likes_public on likes_public.public_id = publications.public_id WHERE likes_public.user_id = %s', (user_id,))
-		publics_id = [ data['public_id'] for data in self.__cursor.fetchall()]
-		return publics_id
+		self.__cursor.execute('SELECT publications.public_id as public_id, publications.video_path as video_path FROM publications JOIN likes_public on likes_public.public_id = publications.public_id WHERE likes_public.user_id = %s', (user_id,))
+		publics = self.__cursor.fetchall()
+		return publics
 
 	def is_free_login(self, login):
 		try:
