@@ -45,7 +45,7 @@ class DanceDB:
 
 	def add_like(self, user_id, public_id):  #SAVED_PUBLIC
 		try:
-			self.__cursor.execute('INSERT INTO saved_public (user_id, public_id) VALUES (%s, %s);', (user_id, public_id))
+			self.__cursor.execute('INSERT INTO likes_public (user_id, public_id) VALUES (%s, %s);', (user_id, public_id))
 			self.__db.commit()
 		except psycopg2.Error as e:
 			print(e.pgerror)
@@ -116,7 +116,7 @@ class DanceDB:
 
 	def delete_like(self, user_id, public_id):  #SAVED_PUBLIC
 		try:
-			self.__cursor.execute('DELETE FROM saved_public WHERE public_id = %s AND user_id = %s;',(public_id, user_id))
+			self.__cursor.execute('DELETE FROM likes_public WHERE public_id = %s AND user_id = %s;',(public_id, user_id))
 			self.__db.commit()
 		except psycopg2.Error as e:
 			print(e.pgerror)
@@ -134,7 +134,26 @@ class DanceDB:
 		self.__cursor.execute('SELECT * FROM users WHERE login = %s LIMIT 1', (login,))
 		user = self.__cursor.fetchone()
 		return user
+	
+	def get_user_id_by_login(self, login):
+		self.__cursor.execute('SELECT user_id FROM users WHERE login = %s LIMIT 1', (login,))
+		user = self.__cursor.fetchone()
+		return user
 		
+	def get_subscriptions(self, user_id):
+		self.__cursor.execute('SELECT login FROM followers JOIN users on followers.follower_id = users.user_id WHERE followers.user_id = %s', (user_id,))
+		subscriptions = [ data['login'] for data in self.__cursor.fetchall()]
+		return subscriptions
+	
+	def get_follower(self, user_id):
+		self.__cursor.execute('SELECT login FROM followers JOIN users on followers.user_id = users.user_id WHERE followers.follower_id = %s', (user_id,))
+		follower = [ data['login'] for data in self.__cursor.fetchall()]
+		return follower
+	
+	def get_likes(self, user_id):
+		self.__cursor.execute('SELECT publication.public_id FROM publications JOIN likes_public on likes_public.public_id = publications.public_id WHERE likes_public.user_id = %s', (user_id,))
+		publics_id = [ data['public_id'] for data in self.__cursor.fetchall()]
+		return publics_id
 
 	def is_free_login(self, login):
 		try:
@@ -169,6 +188,13 @@ class DanceDB:
 			print(e.pgerror)
 			return False
 
+	def get_public_by_id(self, public_id):
+		self.__cursor.execute('SELECT * FROM publications WHERE public_id = %s LIMIT 1', (public_id,))
+		public = self.__cursor.fetchone()
+		return public
+
+		
+
 	def get_users_logins(self):
 		try:
 			self.__cursor.execute('SELECT login FROM users')
@@ -177,7 +203,12 @@ class DanceDB:
 		except psycopg2.Error as e:
 			print(e.pgerror)
 			return False
-
+		
+	def get_all_styles(self):
+		self.__cursor.execute('SELECT * FROM styles')
+		styles = self.__cursor.fetchall()
+		return styles
+		
 	def get_all_publics(self):
 		try:
 			self.__cursor.execute('SELECT video_path FROM publications')
@@ -189,18 +220,19 @@ class DanceDB:
 		
 	def get_video_by_user_id(self, user_id):
 		try:
-			self.__cursor.execute('SELECT video_path FROM publications WHERE user_id = %s', (user_id,))
-			publics = [ data['video_path'] for data in self.__cursor.fetchall()]
+			self.__cursor.execute('SELECT * FROM publications WHERE user_id = %s', (user_id,))
+			publics = self.__cursor.fetchall()
 			return publics
 		except psycopg2.Error as e:
 			print(e.pgerror)
 			return False
-		
-	def get_all_styles(self):
-		try:
-			self.__cursor.execute('SELECT * FROM styles')
-			styles = self.__cursor.fetchall()
-			return styles
-		except psycopg2.Error as e:
-			print(e.pgerror)
-			return False
+
+	def check_follow(self, user_id, follower_id):
+		self.__cursor.execute('SELECT * FROM followers WHERE user_id = %s and follower_id = %s', (user_id, follower_id, ))
+		check =  self.__cursor.fetchall() 
+		return check
+	
+	def check_like(self, user_id, public_id):
+		self.__cursor.execute('SELECT * FROM likes_public WHERE user_id = %s and public_id = %s', (user_id, public_id, ))
+		check =  self.__cursor.fetchall() 
+		return check

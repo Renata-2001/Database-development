@@ -20,6 +20,7 @@ Profile
 			<video width=100% controls>
 				<source src="video['path']" type="video/{{video['ext']}}">
 			</video>
+			<p><a href="{{ url_for('public', public_id=video['public_id']) }}">Подробнее</a></p>
 			<hr>
 		</div>
 		{% endfor %}

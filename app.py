@@ -43,13 +43,12 @@ def login():
 def profile():
 	user_id = int(current_user.get_id())
 	login = dancedb.get_user(user_id)['login']
-	filename = dancedb.get_video_by_user_id(user_id)
+	public = dancedb.get_video_by_user_id(user_id)
 	media_path = cfg['MEDIA_PATH']
 	videos = []
-	for v in filename:
-		_, ext = os.path.splitext(v)
-		print(ext)
-		videos.append({'path': os.path.join(media_path, v), 'ext': ext[1:]})
+	for v in public:
+		_, ext = os.path.splitext(v['video_path'])
+		videos.append({'path': os.path.join(media_path, v['video_path']), 'ext': ext[1:], 'public_id': v['public_id']})
 	return render_template('profile.html',
 		user_id=current_user.get_id() if current_user else None,
 		loggedin=current_user,
@@ -77,6 +76,35 @@ def profile_id(login):
 		videos = videos,
 		what = what
 	)
+
+@app.route('/<public_id>', methods=['GET'])
+@login_required
+def public(public_id):
+	public = dancedb.get_public_by_id(public_id)
+	if dancedb.check_like(current_user.get_id(), public_id):
+		what = "Удалить из избранного"
+	else:
+		what = "Добавить в избранное"
+	media_path = cfg['MEDIA_PATH']
+	_, ext = os.path.splitext(public['video_path'])
+	video = ({'path': os.path.join(media_path, public['video_path']), 'ext': ext[1:]})
+	return render_template('public.html',
+			loggedin=current_user,
+			what=what,
+			video=video,
+			public_id=public_id,
+			description = public['description']
+	)
+
+@app.route('/like/<public_id>', methods=['GET'])
+@login_required
+def like(public_id):
+	if dancedb.check_like(current_user.get_id(), public_id):
+		dancedb.delete_like(current_user.get_id(), public_id)
+		return redirect(url_for('public', public_id=public_id))
+	else:
+		dancedb.add_like(current_user.get_id(), public_id)
+		return redirect(url_for('public', public_id=public_id))
 
 @app.route('/follow/<login>', methods=['GET'])
 @login_required
@@ -147,6 +175,7 @@ def load_user(user_id):
 @login_required
 def upload():
 	if request.method == 'POST':	
+		print(request.form['style'], '----style')
 		user_id = int(current_user.get_id())
 		for f in request.files.getlist('video'):
 			if f.filename == '':
@@ -159,7 +188,7 @@ def upload():
 			else:
 				flash('Неправильный формат видео')
 				print('Wrong video format')
-				return redirect(url_for('profile'))
+			return redirect(url_for('profile'))
 	return render_template('upload.html',
 			loggedin=current_user,
 			styles=dancedb.get_all_styles()

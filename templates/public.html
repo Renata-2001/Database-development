@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Publication
+{% endblock %}
+
+{% block content %}
+
+
+
+<div id="media">
+	<div class="media">
+		<hr>
+		<p>Description</p>
+		<p>{{description}}</p>
+		<div style="border:1px solid black;">
+			<video width=100% controls>
+				<source src="video['path']" type="video/{{video['ext']}}">
+			</video>
+			<p><a href="{{ url_for('like', public_id=public_id) }}">{{what}}</a></p>
+			<hr>
+		</div>
+		<hr>
+	</div>
+</div>
+{% endblock %}
