@@ -30,6 +30,11 @@ Publication
             {% for comment in comments %}
                 <p><a href="{{ url_for('profile_id', login=comment['login']) }}">{{comment['login']}}</a></p>
                 <p>{{comment['text']}}</p>
+                <p><a href="{{ url_for('delete_comment', public_id=comment['public_id'], user_id = comment['user_id']) }}">Удалить комментарий</a></p>
+                <form method="POST" action="{{ url_for('update_comment', public_id=comment['public_id'], user_id = comment['user_id']) }}">
+                    <p><h4>Введите новый комментарий</h4><input id="new_comment" type="text" name="new_comment" value=""></p>
+                    <p><input type="submit", value="Обновить комментарий"/></p>
+                </form>
             {% endfor %}
 		</div>
 		<hr>

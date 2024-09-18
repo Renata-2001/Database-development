@@ -210,12 +210,33 @@ def likes_of_the_public(public_id):
 @login_required
 def add_comment(public_id):
 	if request.method == 'POST':	
-		print('this', request.form['comment'])
 		dancedb.add_comment(int(current_user.get_id()), public_id, request.form['comment'])	
 		return redirect(url_for('public', public_id = public_id))
 	return 'hello'
 
 
+@app.route('/<public_id>/<user_id>/delete_comment', methods=['GET'])  #если комментарий разместили вы, вы можете его удалить
+@login_required
+def delete_comment(public_id, user_id):
+	if user_id == current_user.get_id():
+		dancedb.delete_comment(current_user.get_id(), public_id)
+		return redirect(url_for('public', public_id=public_id))
+	else:
+		flash('You cannot delete a comment that is not yours!')
+		return redirect(url_for('public', public_id=public_id))
+	
+
+@app.route('/<public_id>/<user_id>/update_comment', methods=['GET', 'POST'])  #если комментарий разместили вы, вы можете его удалить
+@login_required
+def update_comment(public_id, user_id):
+	if user_id == current_user.get_id():
+		if request.method == 'POST':	
+			dancedb.update_comment(int(current_user.get_id()), public_id, request.form['new_comment'])	
+			return redirect(url_for('public', public_id = public_id))
+		return 'hello'
+	else:
+		flash('You cannot update a comment that is not yours!')
+		return redirect(url_for('public', public_id=public_id))
 
 
 

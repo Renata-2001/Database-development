@@ -244,7 +244,7 @@ class DanceDB:
 	
 
 	def get_comments(self, public_id):
-		self.__cursor.execute('SELECT users.login as login, comment_public.comment_text as text FROM comment_public join users on users.user_id=comment_public.user_id WHERE comment_public.public_id = %s', (public_id, ))
+		self.__cursor.execute('SELECT users.login as login, comment_public.comment_text as text, comment_public.public_id as public_id, comment_public.user_id as user_id FROM comment_public join users on users.user_id=comment_public.user_id WHERE comment_public.public_id = %s', (public_id, ))
 		comments = self.__cursor.fetchall()
 		return comments
 
