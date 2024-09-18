@@ -236,3 +236,19 @@ class DanceDB:
 		self.__cursor.execute('SELECT * FROM likes_public WHERE user_id = %s and public_id = %s', (user_id, public_id, ))
 		check =  self.__cursor.fetchall() 
 		return check
+	
+	def likes_of_the_public(self, public_id):
+		self.__cursor.execute('SELECT login FROM publications join users on users.user_id=publications.user_id WHERE public_id = %s', (public_id, ))
+		login = [ data['login'] for data in self.__cursor.fetchall()]
+		return login
+	
+
+	def get_comments(self, public_id):
+		self.__cursor.execute('SELECT users.login as login, comment_public.comment_text as text FROM comment_public join users on users.user_id=comment_public.user_id WHERE comment_public.public_id = %s', (public_id, ))
+		comments = self.__cursor.fetchall()
+		return comments
+
+	def count_likes(self, public_id):
+		self.__cursor.execute('SELECT COUNT(user_id) as count_of_likes FROM publications WHERE public_id = %s', (public_id, ))
+		count =  self.__cursor.fetchall() 
+		return count

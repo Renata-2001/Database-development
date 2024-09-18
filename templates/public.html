@@ -19,6 +19,18 @@ Publication
 			</video>
 			<p><a href="{{ url_for('like', public_id=public_id) }}">{{what}}</a></p>
 			<hr>
+            <form method="POST" action="{{ url_for('add_comment', public_id=public_id) }}">
+                <p><h4>Добавьте комментарий</h4><input id="comment" type="text" name="comment" value=""></p>
+                <p><input type="submit", value="Добавить комментарий"/></p>
+                <p>Эта запись понравилась этим людям:</p>
+                <p><a href="{{ url_for('likes_of_the_public', public_id=public_id) }}">{{count}}</a></p>
+            </form>
+            <hr>
+            <p>Комментарии</p>
+            {% for comment in comments %}
+                <p><a href="{{ url_for('profile_id', login=comment['login']) }}">{{comment['login']}}</a></p>
+                <p>{{comment['text']}}</p>
+            {% endfor %}
 		</div>
 		<hr>
 	</div>
