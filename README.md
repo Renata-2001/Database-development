@@ -1,4 +1,4 @@
-# DanceContent
+# DanceConnect
 
 Это мой первый сайт с БД
 
