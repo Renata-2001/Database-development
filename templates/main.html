@@ -6,9 +6,9 @@
 
 {% block content %}
 <div id="main">
-	<p>Стили танцев</p>
+	<p>Пользователи</p>
 	{% for i in values %}
-		<p>{{i}}</p>
+		<p><a href="{{ url_for('profile_id', login=i) }}">{{i}}</a></p>
 	{% endfor %}
 </div>
 {% endblock %}

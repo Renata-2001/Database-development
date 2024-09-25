@@ -3,7 +3,7 @@
 BEGIN;
 
 
-CREATE TABLE IF NOT EXISTS users
+CREATE TABLE IF NOT EXISTS public.users
 (
     user_id serial,
     login character varying(20) NOT NULL,

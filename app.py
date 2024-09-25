@@ -22,15 +22,44 @@ login_manager = LoginManager(app)
 
 @app.route('/')
 def index():
+	dancedb = DanceDB(cfg)
 	return render_template('main.html',
 			loggedin=current_user,
-			values=dancedb.get_all_styles()
+			values=dancedb.get_users_logins()
+	)
+
+
+@app.route('/styles')
+def styles():
+	dancedb = DanceDB(cfg)
+	return render_template('styles.html',
+			loggedin=current_user,
+			styles=dancedb.get_all_styles()
+	)
+
+
+@app.route('/styles/<style_id>', methods=['GET'])
+def style(style_id):
+	dancedb = DanceDB(cfg)
+	publics= dancedb.get_public_by_style_id(style_id)
+	media_path = cfg['MEDIA_PATH']
+	main, media_folder = os.path.split(media_path)
+	print(media_path)
+	videos = []
+	for v in publics:
+		_, ext = os.path.splitext(v['video_path'])
+		videos.append({'path': os.path.join(media_folder, v['video_path']), 'ext': ext[1:], 'public_id': v['public_id']})
+	return render_template('publics.html',
+		loggedin=current_user,
+		videos=videos,
+		what = 'Styles'
 	)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	if request.method == 'POST':
+		dancedb = DanceDB(cfg)
 		user = dancedb.get_user_by_login(request.form['login'])
 		if user and check_password_hash(user['passwd'], request.form['passwd']):
 			userLogin = UserLogin().create(user)
@@ -51,6 +80,7 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	if request.method == 'POST':
+		dancedb = DanceDB(cfg)
 		if len(request.form['login']) >= 0 and len(request.form['passwd1']) >= 0 and (request.form['passwd1'] == request.form['passwd2']):
 			if dancedb.is_free_login(request.form['login']):	
 				print('printreg new user\n')				
@@ -66,7 +96,7 @@ def register():
 @login_required
 def profile():
 	user_id = int(current_user.get_id())
-	login = dancedb.get_user(user_id)['login']
+	dancedb = DanceDB(cfg)
 	public = dancedb.get_video_by_user_id(user_id)
 	media_path = cfg['MEDIA_PATH']
 	videos = []
@@ -84,6 +114,7 @@ def profile():
 @app.route('/profile_id/<login>', methods=['GET'])   #просмотр чужого профиля
 @login_required
 def profile_id(login):
+	dancedb = DanceDB(cfg)
 	if login == dancedb.get_user(current_user.get_id())['login']:
 		return redirect(url_for('profile'))
 	else:
@@ -96,8 +127,8 @@ def profile_id(login):
 		media_path = cfg['MEDIA_PATH']
 		videos = []
 		for v in public:
-			_, ext = os.path.splitext(v)
-			videos.append({'path': os.path.join(media_path, v), 'ext': ext[1:], 'public_id': v['public_id']})
+			_, ext = os.path.splitext(v['video_path'])
+			videos.append({'path': os.path.join(media_path, v['video_path']), 'ext': ext[1:], 'public_id': v['public_id']})
 		return render_template('profile_id.html',
 			loggedin=current_user,
 			login = login,
@@ -109,6 +140,7 @@ def profile_id(login):
 @app.route('/profile/likes')   # просмотр понравивишихся публикаций
 @login_required
 def likes():
+	dancedb = DanceDB(cfg)
 	user_id = current_user.get_id()
 	publics= dancedb.get_likes(user_id)
 	media_path = cfg['MEDIA_PATH']
@@ -125,6 +157,7 @@ def likes():
 @app.route('/follow/<login>', methods=['GET'])   # подписка и отписка от чужого аккаунта
 @login_required
 def follow(login):
+	dancedb = DanceDB(cfg)
 	user_id = dancedb.get_user_by_login(login)['user_id']
 	if user_id == current_user.get_id():
 		flash('You cannot follow yourself!')
@@ -142,7 +175,8 @@ def follow(login):
 @app.route('/profile/followers/<login>', methods=['GET'])  # просмотр подписчиков
 @login_required
 def followers(login):
-	user_id = dancedb.get_user_by_login(login)['user_id']
+	dancedb = DanceDB(cfg)
+	user_id = dancedb.get_user_id_by_login(login)
 	users = dancedb.get_follower(user_id)
 	return render_template('users.html',
 		loggedin=current_user,
@@ -153,7 +187,8 @@ def followers(login):
 @app.route('/profile/subscriptions/<login>', methods=['GET'])   # просмотр подписок
 @login_required
 def subscriptions(login):
-	user_id = dancedb.get_user_by_login(login)['user_id']
+	dancedb = DanceDB(cfg)
+	user_id = dancedb.get_user_id_by_login(login)
 	users = dancedb.get_subscriptions(user_id)
 	return render_template('users.html',
 		loggedin=current_user,
@@ -164,6 +199,7 @@ def subscriptions(login):
 @app.route('/<public_id>', methods=['GET'])  #просмотр публикации "подробнее" - здесь можно писать комментарии и добавлять в любимое
 @login_required
 def public(public_id):
+	dancedb = DanceDB(cfg)
 	public = dancedb.get_public_by_id(public_id)
 	comments = dancedb.get_comments(public_id)
 	if dancedb.check_like(current_user.get_id(), public_id):
@@ -187,6 +223,7 @@ def public(public_id):
 @app.route('/<public_id>/like', methods=['GET'])  #публикацию можно лайкнуть
 @login_required
 def like(public_id):
+	dancedb = DanceDB(cfg)
 	if dancedb.check_like(current_user.get_id(), public_id):
 		dancedb.delete_like(current_user.get_id(), public_id)
 		return redirect(url_for('public', public_id=public_id))
@@ -198,6 +235,7 @@ def like(public_id):
 @app.route('/<public_id>/likes', methods=['GET'])  # просмотр лайков
 @login_required
 def likes_of_the_public(public_id):
+	dancedb = DanceDB(cfg)
 	users = dancedb.likes_of_the_public(public_id)
 	return render_template('users.html',
 		loggedin=current_user,
@@ -210,6 +248,7 @@ def likes_of_the_public(public_id):
 @login_required
 def add_comment(public_id):
 	if request.method == 'POST':	
+		dancedb = DanceDB(cfg)
 		dancedb.add_comment(int(current_user.get_id()), public_id, request.form['comment'])	
 		return redirect(url_for('public', public_id = public_id))
 	return 'hello'
@@ -219,6 +258,7 @@ def add_comment(public_id):
 @login_required
 def delete_comment(public_id, user_id):
 	if user_id == current_user.get_id():
+		dancedb = DanceDB(cfg)
 		dancedb.delete_comment(current_user.get_id(), public_id)
 		return redirect(url_for('public', public_id=public_id))
 	else:
@@ -231,6 +271,7 @@ def delete_comment(public_id, user_id):
 def update_comment(public_id, user_id):
 	if user_id == current_user.get_id():
 		if request.method == 'POST':	
+			dancedb = DanceDB(cfg)
 			dancedb.update_comment(int(current_user.get_id()), public_id, request.form['new_comment'])	
 			return redirect(url_for('public', public_id = public_id))
 		return 'hello'
@@ -239,16 +280,18 @@ def update_comment(public_id, user_id):
 		return redirect(url_for('public', public_id=public_id))
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
 	print('load user')
 	print(user_id)
+	dancedb = DanceDB(cfg)
 	return UserLogin().fromDB(user_id, dancedb)
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
+	dancedb = DanceDB(cfg)
 	if request.method == 'POST':	
 		print(request.form['style'], '----style')
 		user_id = int(current_user.get_id())
@@ -269,9 +312,11 @@ def upload():
 			styles=dancedb.get_all_styles()
 			)
 
+
 @app.route('/add_style', methods=['GET', 'POST'])
 @login_required
 def add_style():
+	dancedb = DanceDB(cfg)
 	if request.method == 'POST':	
 		dancedb.add_styles(request.form['style'])	
 		return redirect(url_for('upload'))
@@ -280,22 +325,6 @@ def add_style():
 			styles=dancedb.get_all_styles()
 			)
 
-dancedb = None
-@app.before_request
-def before_request():
-	global dancedb
-	db = get_db()
-	dancedb = DanceDB(db)
-
-@app.teardown_appcontext
-def close_db(error=None):
-	if hasattr(g, 'db'):
-		g.db.close()
-
-def get_db():
-	if not hasattr(g, 'db'):
-		g.db = psycopg2.connect(dbname=cfg['DATABASE'], user=cfg['USERNAME'], password = cfg['PASSWORD'])
-	return g.db
 
 def get_free_name():
 	name = str(uuid.uuid4())
