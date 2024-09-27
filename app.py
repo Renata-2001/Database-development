@@ -49,8 +49,7 @@ def style(style_id):
 		videos.append({'path': os.path.join(media_path, v['video_path']), 'ext': ext[1:], 'public_id': v['public_id']})
 	return render_template('publics.html',
 		loggedin=current_user,
-		videos=videos,
-		what = 'Styles'
+		videos=videos
 	)
 
 
@@ -118,10 +117,6 @@ def profile_id(login):
 		return redirect(url_for('profile'))
 	else:
 		user_id = dancedb.get_user_by_login(login)['user_id']
-		if dancedb.check_follow(current_user.get_id(), user_id):
-			what = "Отписаться"
-		else:
-			what = "Подписаться"
 		public = dancedb.get_video_by_user_id(user_id)
 		media_path = cfg['VIDEO_PATH']
 		videos = []
@@ -132,7 +127,7 @@ def profile_id(login):
 			loggedin=current_user,
 			login = login,
 			videos = videos,
-			what = what
+			check = dancedb.check_follow(current_user.get_id(), user_id)
 		)
 
 
@@ -149,8 +144,7 @@ def likes():
 		videos.append({'path': os.path.join(media_path, v['video_path']), 'ext': ext[1:], 'public_id': v['public_id']})
 	return render_template('publics.html',
 		loggedin=current_user,
-		videos=videos,
-		what = 'Любимое'
+		videos=videos
 	)
 
 @app.route('/follow/<login>', methods=['GET'])   # подписка и отписка от чужого аккаунта
@@ -164,11 +158,11 @@ def follow(login):
 	if dancedb.check_follow(current_user.get_id(), user_id):
 		dancedb.delete_follower(current_user.get_id(), user_id)
 		flash(f'You are unfollowing {login}!')
-		return redirect(url_for('followers', login=dancedb.get_user(current_user.get_id())['login']))
+		return redirect(url_for('subscriptions', login=dancedb.get_user(current_user.get_id())['login']))
 	else:
 		dancedb.add_follower(current_user.get_id(), user_id)
 		flash(f'You are following {login}!')
-		return redirect(url_for('followers', login=dancedb.get_user(current_user.get_id())['login']))
+		return redirect(url_for('subscriptions', login=dancedb.get_user(current_user.get_id())['login']))
 
 
 @app.route('/profile/followers/<login>', methods=['GET'])  # просмотр подписчиков
@@ -179,8 +173,7 @@ def followers(login):
 	users = dancedb.get_follower(user_id)
 	return render_template('users.html',
 		loggedin=current_user,
-		users=users,
-		who = 'Подписчики'
+		users=users
 	)
 
 @app.route('/profile/subscriptions/<login>', methods=['GET'])   # просмотр подписок
@@ -191,8 +184,7 @@ def subscriptions(login):
 	users = dancedb.get_subscriptions(user_id)
 	return render_template('users.html',
 		loggedin=current_user,
-		users=users,
-		who = 'Подписки'
+		users=users
 	)
 
 @app.route('/<public_id>', methods=['GET'])  #просмотр публикации "подробнее" - здесь можно писать комментарии и добавлять в любимое
@@ -201,20 +193,16 @@ def public(public_id):
 	dancedb = DanceDB(cfg)
 	public = dancedb.get_public_by_id(public_id)
 	comments = dancedb.get_comments(public_id)
-	if dancedb.check_like(current_user.get_id(), public_id):
-		what = "Удалить из избранного"
-	else:
-		what = "Добавить в избранное"
 	media_path = cfg['VIDEO_PATH']
 	_, ext = os.path.splitext(public['video_path'])
 	video = ( { 'path': os.path.join(media_path, public['video_path']), 'ext': ext[1:], 'description' : public['description'], 'login' : public['login']})
 	return render_template('public.html',
 			loggedin=current_user,
-			what=what,
 			video=video,
 			public_id=public_id,
 			count = dancedb.count_likes(public_id),
-			comments=comments
+			comments=comments,
+			check = dancedb.check_like(current_user.get_id(), public_id)
 	)
 
 
@@ -237,8 +225,7 @@ def likes_of_the_public(public_id):
 	users = dancedb.likes_of_the_public(public_id)
 	return render_template('users.html',
 		loggedin=current_user,
-		users=users,
-		who = 'Этим людям понравилась публикация'
+		users=users
 	)
 	
 

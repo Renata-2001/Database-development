@@ -19,7 +19,11 @@ Publication
 			<video width=100% controls>
 				<source src="video['path']" type="video/{{video['ext']}}">
 			</video>
-			<p><a href="{{ url_for('like', public_id=public_id) }}">{{what}}</a></p>
+            {% if check %}
+                <p><a href="{{ url_for('like', public_id=public_id) }}">Удалить из избранного</a></p>
+	        {% else %}
+                <p><a href="{{ url_for('like', public_id=public_id) }}">Добавить в избранное</a></p>
+	        {% endif %}
 			<hr>
             <form method="POST" action="{{ url_for('add_comment', public_id=public_id) }}">
                 <p><h4>Добавьте комментарий</h4><input id="comment" type="text" name="comment" value=""></p>

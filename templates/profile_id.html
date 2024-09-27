@@ -8,7 +8,11 @@ Profile
 <ul>
     <li><a href="{{ url_for('subscriptions', login=login) }}">Подписки</a></li>
     <li><a href="{{ url_for('followers', login=login) }}">Подписчики</a></li>
-    <li><a href="{{ url_for('follow', login=login) }}">{{what}}</a></li>
+	{% if check %}
+    	<li><a href="{{ url_for('follow', login=login) }}">Отписаться</a></li>
+	{% else %}
+		<li><a href="{{ url_for('follow', login=login) }}">Подписаться</a></li>
+	{% endif %}
 </ul>
 
 <div id="media"></div>
@@ -17,7 +21,7 @@ Profile
 		{% for video in videos %}
 		<div style="border:1px solid black;">
 			<video width=100% controls>
-				<source src="video['path']" type="video/{{video['ext']}}">
+				<source src="{{video['path']}}" type="video/{{video['ext']}}">
 			</video>
             <p><a href="{{ url_for('public', public_id=video['public_id']) }}">Подробнее</a></p>
             <hr>
