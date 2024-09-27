@@ -1,0 +1,8 @@
+# медиа
+static/video/*
+
+#кэш
+__pycache__
+
+#конфиг
+FLASK_CONFIGURATION_SETUP
