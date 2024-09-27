@@ -176,7 +176,7 @@ class DanceDB:
 	def get_public_by_id(self, public_id):
 		with self.conn:
 			with self.conn.cursor() as cur:
-				cur.execute('SELECT * FROM publications WHERE public_id = %s LIMIT 1', (public_id,))
+				cur.execute('SELECT publications.public_id as public_id, publications.description as description, publications.video_path as video_path, users.login as login FROM publications join users on users.user_id=publications.user_id WHERE public_id = %s LIMIT 1', (public_id,))
 				public = cur.fetchone()
 		return public
 	
@@ -223,13 +223,13 @@ class DanceDB:
 		with self.conn:
 			with self.conn.cursor() as cur:
 				cur.execute('SELECT * FROM likes_public WHERE user_id = %s and public_id = %s', (user_id, public_id, ))
-				check =  cur.fetchall() 
+				check =  True if cur.fetchall() else False
 		return check
 	
 	def likes_of_the_public(self, public_id):
 		with self.conn:
 			with self.conn.cursor() as cur:
-				cur.execute('SELECT login FROM publications join users on users.user_id=publications.user_id WHERE public_id = %s', (public_id, ))
+				cur.execute('SELECT login FROM likes_public join users on users.user_id=likes_public.user_id WHERE likes_public.public_id = %s', (public_id, ))
 				login = [ data['login'] for data in cur.fetchall()]
 		return login
 	
@@ -244,7 +244,7 @@ class DanceDB:
 	def count_likes(self, public_id):
 		with self.conn:
 			with self.conn.cursor() as cur:
-				cur.execute('SELECT COUNT(user_id) as count_of_likes FROM publications WHERE public_id = %s', (public_id, ))
+				cur.execute('SELECT COUNT(*) as count_of_likes FROM likes_public WHERE public_id = %s', (public_id, ))
 				count =  cur.fetchall() 
 		return count
 	

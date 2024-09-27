@@ -21,6 +21,7 @@
 ![](https://github.com/Renata-2001/Database-development/blob/main/Schema.png)
 
 <<<<<<< HEAD
+
 ## Инструкция по развертыванию приложения
 
 ### Подготовка сервера
@@ -75,6 +76,3 @@ $ psql -U USER -d dbname
 ```
 $ python3 app.py
 ```
-=======
-
->>>>>>> refs/remotes/origin/main
