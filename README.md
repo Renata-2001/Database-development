@@ -20,8 +20,6 @@
 
 ![](https://github.com/Renata-2001/Database-development/blob/main/Schema.png)
 
-<<<<<<< HEAD
-
 ## Инструкция по развертыванию приложения
 
 ### Подготовка сервера
@@ -39,7 +37,7 @@ $ sudo -i -u postgres psql
 # create user rolename
 # \password rolename
 # CREATE DATABASE dbname;
-# ALTER DATABASE dbname QWNER TO rolename;
+# ALTER DATABASE dbname OWNER TO rolename;
 # quit;
 ```
 
