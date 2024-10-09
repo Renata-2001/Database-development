@@ -26,7 +26,7 @@
 
 Создаем базу данных postgres, где
 
-- rolename - учетная запись
+- rolename - учетная запись, совпадающая с пользователем ОС
 
 - dbname - название БД
 
@@ -46,7 +46,8 @@ $ sudo -i -u postgres psql
 Файл конфигурации - FLASK_CONFIGURATION_SETUP:
 
 ```
-MEDIA_PATH = "path/to/download/video"
+MEDIA_PATH = "path/application/static/video"
+VIDEO_PATH = "/static/video"
 SECRET_KEY = 'secret_key'
 DATABASE = 'dbname'
 USERNAME ='rolename' 
@@ -68,6 +69,8 @@ $ psql -U USER -d dbname
 ```
 
 ### Запуск приложения
+
+Необходимо создать папку video внутри path/application/static, где будут храниться видео пользователей
 
 Выполните комманду:
 
