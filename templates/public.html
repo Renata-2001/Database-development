@@ -17,7 +17,7 @@ Publication
 		<p>{{video['description']}}</p>
 		<div style="border:1px solid black;">
 			<video width=100% controls>
-				<source src="{{video['path']}}"" type="video/{{video['ext']}}">
+				<source src="{{video['path']}}" type="video/{{video['ext']}}">
 			</video>
             {% if check %}
                 <p><a href="{{ url_for('like', public_id=public_id) }}">Удалить из избранного</a></p>
