@@ -5,7 +5,7 @@ Registration
 {% endblock %}
 
 {% block content %}
-<form class="reg_log_form" action="/register" method="post">
+<form class="reg_log_form" action="{{ url_for('register') }}" method="post">
 	<p><label>Login: </label><input type="text" name="login" value="" required/>
     <p><label>Email: </label><input type="text" name="email" value="" required/>
 	<p><label>Password: </label><input type="password" maxlength="20" name="passwd1" value="" required/>

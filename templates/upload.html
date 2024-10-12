@@ -6,7 +6,7 @@ Upload
 
 {% block content %} 
 <div id="upload">
-	<form method="POST" action="/upload" enctype="multipart/form-data">
+	<form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
         <p><h4>Описание:</h4><input id="description" type="text" name="description" value=""></p>
         <p>
 		    <select name="style">
@@ -19,7 +19,7 @@ Upload
         <p><h4>Видео</h4>(можно выбрать только одно):<input id="video" type="file" name="video" value=""></p>
         <p><input type="submit", value="Добавить публикацию"/></p>
     </form>
-    <form method="POST" action="/add_style">
+    <form method="POST" action="{{ url_for('add_style') }}">
         <p><h4>Добавьте стиль, если подходящего нет:</h4><input id="style" type="text" name="style" value=""></p>
         <p><input type="submit", value="Добавить стиль"/></p>
     </form>

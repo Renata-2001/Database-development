@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS styles
 (
     style_id serial,
     style character varying(20) NOT NULL,
-    PRIMARY KEY (style_id)
+    PRIMARY KEY (style_id),
+    CONSTRAINT style UNIQUE (style)
 );
 
 CREATE TABLE IF NOT EXISTS likes_public

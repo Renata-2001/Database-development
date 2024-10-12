@@ -78,16 +78,19 @@ def logout():
 def register():
 	if request.method == 'POST':
 		dancedb = DanceDB(cfg)
-		if len(request.form['login']) >= 0 and len(request.form['passwd1']) >= 0 and (request.form['passwd1'] == request.form['passwd2']):
-			if dancedb.is_free_login(request.form['login']):	
-				print('printreg new user\n')				
-				hash = generate_password_hash(request.form['passwd1'])
-				dancedb.add_user(request.form['login'], hash, request.form['email'])
-				return redirect(url_for('login'))
+		if  request.form['passwd1'] != request.form['passwd2']:
+			return 'Passwords don\'t match.'
+		try:				
+			dancedb.add_user(request.form['login'], generate_password_hash(request.form['passwd1']), request.form['email'])
+		except psycopg2.errors.UniqueViolation as err:
+			if 'login' in str(err):
+				return 'User with this login already exists.'
+			else:
+				return 'User with this email already exists.'
+		return redirect(url_for('login'))
 	return render_template('register.html',
 			loggedin=current_user
 	)
-
 
 @app.route('/profile')   #работа со своим профилем
 @login_required
@@ -301,13 +304,13 @@ def upload():
 @app.route('/add_style', methods=['GET', 'POST'])
 @login_required
 def add_style():
-	dancedb = DanceDB(cfg)
 	if request.method == 'POST':
-		if 	not request.form['style'] in dancedb.get_all_styles_names():
-			print(request.form['style'])
-			print(dancedb.get_all_styles_names())
-			dancedb.add_styles(request.form['style'])	
-			return redirect(url_for('upload'))
+		dancedb = DanceDB(cfg)
+		try:
+			dancedb.add_styles(request.form['style'])
+		except psycopg2.errors.UniqueViolation as err:
+			return 'This style already exists.'
+		return redirect(url_for('upload'))
 	return render_template('upload.html',
 			loggedin=current_user,
 			styles=dancedb.get_all_styles()
