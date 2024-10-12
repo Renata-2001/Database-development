@@ -74,7 +74,7 @@ class DanceDB:
 				if description is not None:
 					cur.execute('UPDATE publications SET description = %s WHERE public_id = %s;', (description, public_id))
 				if style_id is not None:
-					cur.execute('UPDATE publications SET passwd = %s WHERE public_id = %s;', (style_id, public_id))
+					cur.execute('UPDATE publications SET style_id = %s WHERE public_id = %s;', (style_id, public_id))
 
 
 	def update_comment(self, user_id, public_id, comment_text):  #COMMENT_PUBLIC
@@ -196,6 +196,13 @@ class DanceDB:
 				styles = cur.fetchall()
 		return styles
 		
+	def get_all_styles_names(self):
+		with self.conn:
+			with self.conn.cursor() as cur:
+				cur.execute('SELECT style FROM styles')
+				styles = [ data['style'] for data in cur.fetchall()]
+		return styles
+	
 	def get_all_publics(self):
 		with self.conn:
 			with self.conn.cursor() as cur:

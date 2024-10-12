@@ -302,9 +302,12 @@ def upload():
 @login_required
 def add_style():
 	dancedb = DanceDB(cfg)
-	if request.method == 'POST':	
-		dancedb.add_styles(request.form['style'])	
-		return redirect(url_for('upload'))
+	if request.method == 'POST':
+		if 	not request.form['style'] in dancedb.get_all_styles_names():
+			print(request.form['style'])
+			print(dancedb.get_all_styles_names())
+			dancedb.add_styles(request.form['style'])	
+			return redirect(url_for('upload'))
 	return render_template('upload.html',
 			loggedin=current_user,
 			styles=dancedb.get_all_styles()
