@@ -29,7 +29,6 @@ $ apt-get update
 $ apt install python3-psycopg2
 $ apt install python3-flask
 $ apt install python3-flask-login
-$ apt install python3-werkzeug
 $ apt install postgresql
 ```
 
@@ -37,7 +36,7 @@ $ apt install postgresql
 
 Создаем базу данных postgres, где
 
-- rolename - учетная запись, совпадающая с пользователем ОС
+- rolename - учетная запись
 
 - dbname - название БД
 
