@@ -22,6 +22,17 @@
 
 ## Инструкция по развертыванию приложения
 
+### Установка всех необходимых пакетов
+
+```
+$ apt-get update
+$ apt install python3-psycopg2
+$ apt install python3-flask
+$ apt install python3-flask-login
+$ apt install python3-werkzeug
+$ apt install postgresql
+```
+
 ### Подготовка сервера
 
 Создаем базу данных postgres, где
