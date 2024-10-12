@@ -45,7 +45,7 @@ $ apt install postgresql
 
 ```
 $ sudo -i -u postgres psql
-# create user rolename
+# CREATE USER rolename;
 # \password rolename
 # CREATE DATABASE dbname;
 # ALTER DATABASE dbname OWNER TO rolename;
