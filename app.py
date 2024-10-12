@@ -62,6 +62,8 @@ def login():
 			userLogin = UserLogin().create(user)
 			login_user(userLogin)
 			return redirect(url_for('index'))
+		else:
+			return "Неверный пароль или имя пользователя."
 	return render_template('login.html',
 			loggedin=current_user
 	)
