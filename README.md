@@ -62,8 +62,9 @@ SECRET_KEY = 'secret_key'
 DATABASE = 'dbname'
 USERNAME ='rolename' 
 PASSWORD = 'passwd'
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT = '8000'
+
 ```
 
 - Зайдите в директорию, где хранятся файлы вашего приложения
