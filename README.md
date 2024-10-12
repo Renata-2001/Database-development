@@ -64,7 +64,7 @@ USERNAME ='rolename'
 PASSWORD = 'passwd'
 HOST = '0.0.0.0'
 PORT = '8000'
-
+DEBUG = True
 ```
 
 - Зайдите в директорию, где хранятся файлы вашего приложения
