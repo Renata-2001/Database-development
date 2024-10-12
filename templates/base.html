@@ -9,13 +9,13 @@
 	<body>
 		{% block nav %}
 			<ul>
-				<li><a href="/">Главная</a></li>
-				<li><a href="/styles">Стили</a></li>
+				<li><a href="{{ url_for('index') }}">Главная</a></li>
+				<li><a href="{{ url_for('styles') }}">Стили</a></li>
 				{% if current_user.is_authenticated %}
-					<li><a href="{{ url_for('logout') }}">Log Out</a></li>
-					<li><a href="{{ url_for('profile') }}">Go to profile</a></li>
+					<li><a href="{{ url_for('logout') }}">Выйти</a></li>
+					<li><a href="{{ url_for('profile') }}">Профиль</a></li>
 				{% else %}
-					<li><a href="/login">Авторизация</a></li>
+					<li><a href="{{ url_for('login') }}">Авторизация</a></li>
 				{% endif %}
 			</ul>
 		{% endblock %}

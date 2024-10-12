@@ -8,9 +8,9 @@ Profile
 <ul>
     <li><a href="{{ url_for('subscriptions', login=login) }}">Подписки</a></li>
     <li><a href="{{ url_for('followers', login=login) }}">Подписчики</a></li>
-    <li><a href="/profile/likes">Избранное</a></li>
+    <li><a href="{{ url_for('likes') }}">Избранное</a></li>
 </ul>
-<p><a href="/upload">Добавить запись</a></p>
+<p><a href="{{ url_for('upload') }}">Добавить запись</a></p>
 
 <div id="media">
 	<div class="media">
@@ -27,3 +27,4 @@ Profile
 		<hr>
 	</div>
 </div>
+{% endblock %}
