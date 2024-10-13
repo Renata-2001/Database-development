@@ -308,11 +308,14 @@ def upload():
 def add_style():
 	if request.method == 'POST':
 		dancedb = DanceDB(cfg)
-		try:
-			dancedb.add_styles(request.form['style'])
-		except psycopg2.errors.UniqueViolation as err:
-			return 'This style already exists.'
-		return redirect(url_for('upload'))
+		if request.form['style']:
+			try:
+				dancedb.add_styles(request.form['style'])
+			except psycopg2.errors.UniqueViolation as err:
+				return 'This style already exists.'
+			return redirect(url_for('upload'))
+		else:
+			return('This style id empty!')
 	return render_template('upload.html',
 			loggedin=current_user,
 			styles=dancedb.get_all_styles()
