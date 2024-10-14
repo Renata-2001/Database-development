@@ -282,21 +282,23 @@ def load_user(user_id):
 @login_required
 def upload():
 	dancedb = DanceDB(cfg)
-	if request.method == 'POST':	
-		print(request.form['style'], '----style')
-		user_id = int(current_user.get_id())
-		for f in request.files.getlist('video'):
-			if f.filename == '':
-				continue
-			name = get_free_name()
-			_, ext = os.path.splitext(f.filename)
-			if ext in ['.avi', '.mkv', '.mp4', '.ogg']:
-				f.save(os.path.join(cfg['MEDIA_PATH'], name + ext))
-				dancedb.add_public(user_id, name + ext, request.form['description'], request.form['style'])
-			else:
-				flash('Неправильный формат видео')
-				print('Wrong video format')
-			return redirect(url_for('profile'))
+	if request.method == 'POST':
+		if request.files.getlist('video'):
+			user_id = int(current_user.get_id())
+			for f in request.files.getlist('video'):
+				if f.filename == '':
+					continue
+				name = get_free_name()
+				_, ext = os.path.splitext(f.filename)
+				if ext in ['.avi', '.mkv', '.mp4', '.ogg']:
+					f.save(os.path.join(cfg['MEDIA_PATH'], name + ext))
+					dancedb.add_public(user_id, name + ext, request.form['description'], request.form['style'])
+				else:
+					flash('Неправильный формат видео')
+					print('Wrong video format')
+				return redirect(url_for('profile'))
+		else:
+			return "Выберите видео, которое хотите опубликовать!"
 	return render_template('upload.html',
 			loggedin=current_user,
 			styles=dancedb.get_all_styles()
@@ -308,14 +310,11 @@ def upload():
 def add_style():
 	if request.method == 'POST':
 		dancedb = DanceDB(cfg)
-		if request.form['style']:
-			try:
-				dancedb.add_styles(request.form['style'])
-			except psycopg2.errors.UniqueViolation as err:
-				return 'This style already exists.'
-			return redirect(url_for('upload'))
-		else:
-			return('This style id empty!')
+		try:
+			dancedb.add_styles(request.form['style'])
+		except psycopg2.errors.UniqueViolation as err:
+			return 'This style already exists.'
+		return redirect(url_for('upload'))
 	return render_template('upload.html',
 			loggedin=current_user,
 			styles=dancedb.get_all_styles()

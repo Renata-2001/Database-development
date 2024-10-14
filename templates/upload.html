@@ -16,12 +16,13 @@ Upload
 				{% endfor %}
 			</select> 
 		</p>
-        <p><h4>Видео</h4>(можно выбрать только одно):<input id="video" type="file" name="video" value=""></p>
+        <p><h4>Видео</h4>(можно выбрать только одно):<input id="video" type="file" name="video" value="" required></p>
         <p><input type="submit", value="Добавить публикацию"/></p>
     </form>
     <form method="POST" action="{{ url_for('add_style') }}">
-        <p><h4>Добавьте стиль, если подходящего нет:</h4><input id="style" type="text" name="style" value=""></p>
+        <p><h4>Добавьте стиль, если подходящего нет:</h4><input id="style" type="text" name="style" value="" required></p>
         <p><input type="submit", value="Добавить стиль"/></p>
+        
     </form>
 </div>
 {% endblock %}
